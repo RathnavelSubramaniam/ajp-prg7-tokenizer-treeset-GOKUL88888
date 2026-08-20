@@ -1,0 +1,35 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: TokenizeAndSort.java
+      id: tokenizeandsort-java
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: TokenizeAndSort.java
+        setup-command: javac TokenizeAndSort.java
+        command: java TokenizeAndSort
+        input: ''
+        expected-output: |-
+          Tokensin ascending sorted order:
+          is java of program this unit2
+        comparison-method: contains
+        timeout: 10
+        max-score: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TOKENIZEANDSORT-JAVA_RESULTS: "${{steps.tokenizeandsort-java.outputs.result}}"
+      with:
+        runners: tokenizeandsort-java
